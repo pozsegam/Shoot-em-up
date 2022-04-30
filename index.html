@@ -6,12 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <link rel="stylesheet" href="style.css">
-    <script src="node_modules/pixi.js/dist/browser/pixi.min.js"></script>
+    <script src="node_modules/pixi.js/dist/browser/pixi.js"></script>
     <script src="node_modules/@pixi/sound/dist/pixi-sound.js"></script>
+
 </head>
 <body>
     <script>
-       
         let background,spaceShip, state;
 
         let app = new PIXI.Application({ width: 800, height: 600 });
@@ -63,6 +63,9 @@
             app.stage.addChild(spaceShip);
                 
             state = play;
+            
+            setInterval(addEnemy,2000)
+            
 
             app.ticker.add((delta) => gameLoop(delta))
         }
@@ -143,7 +146,7 @@
         }
 
 
-        
+    
         let ammo = [];
         
         function shoot(e){
@@ -176,34 +179,70 @@
             enemy.position.set(randomInt(800,900)-enemy.width,randomInt(1,600)-enemy.height)
             app.stage.addChild(enemy)
             enemies.push(enemy)
+            console.log(enemies)
         }
         
         function gameLoop(delta) {
             state(delta)
         }
 
-        setInterval(addEnemy,2000)
-        
         
         function play(delta){
                 contain(spaceShip, {x:0, y:0, width:800, height:600});
                 spaceShip.x  += spaceShip.vx;
-                spaceShip.y  += spaceShip.vy;
+                spaceShip.y  += spaceShip.vy;   
+
 
                 for(let i=0; i<ammo.length;i++){
+                    if(hitTestRectangle(ammo[i],enemies)){
+                        console.log("pew")
+                    }
                     ammo[i].x +=5;
+                    
                 }
-                
+
                 for(let i=0; i<enemies.length;i++){
+                    if(hitTestRectangle(enemies[i],spaceShip)){
+                        console.log("pew")
+                   }
                     enemies[i].x -=2;
+
                 }
+    
 
                 background.tilePosition.x-=1;
         }
 
     
         
+        function hitTestRectangle(r1, r2) {
 
+//Calculate `centerX` and `centerY` properties on the sprites
+r1.centerX = r1.x + r1.width / 2;
+r1.centerY = r1.y + r1.height / 2;
+r2.centerX = r2.x + r2.width / 2;
+r2.centerY = r2.y + r2.height / 2;
+
+//Calculate the `halfWidth` and `halfHeight` properties of the sprites
+r1.halfWidth = r1.width / 2;
+r1.halfHeight = r1.height / 2;
+r2.halfWidth = r2.width / 2;
+r2.halfHeight = r2.height / 2;
+
+//Create a `collision` variable that will tell us
+//if a collision is occurring
+let collision = false;
+
+//Check whether the shapes of the sprites are overlapping. If they
+//are, set `collision` to `true`
+if (Math.abs(r1.centerX - r2.centerX) < r1.halfWidth + r2.halfWidth
+&& Math.abs(r1.centerY - r2.centerY) < r1.halfHeight + r2.halfHeight) {
+  collision = true;
+}
+
+//Return the value of `collision` back to the main program
+return collision;
+}
       </script>
 </body>
 </html>
