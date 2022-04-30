@@ -21,58 +21,60 @@
             .add("assets/spaceShip.png")
             .add("assets/background.png")
             .add("assets/fire.gif")
+            .add("assets/bullet.png")
+            .add("assets/enemy.png")
             .load(setup);
             
         function setup() {
-            // engine sound
-            const sound = PIXI.sound.Sound.from({
-               url:"assets/music.mp3",
-              // autoPlay: true,
-               volume: 0.2,
-            })
+                // engine sound
+                const sound = PIXI.sound.Sound.from({
+                url:"assets/music.mp3",
+                // autoPlay: true,
+                volume: 0.2,
+                })
 
-            //bg image
-        background = new PIXI.TilingSprite(
-            PIXI.Loader.shared.resources["assets/background.png"].texture, 800, 600,
-        );
-        let fire = new PIXI.Sprite(
-                PIXI.Loader.shared.resources["assets/fire.gif"].texture
-            );    
+                //bg image
+            background = new PIXI.TilingSprite(
+                PIXI.Loader.shared.resources["assets/background.png"].texture, 800, 600,
+            );
+            let fire = new PIXI.Sprite(
+                    PIXI.Loader.shared.resources["assets/fire.gif"].texture
+                );    
 
-            spaceShip = new PIXI.Sprite(
-                PIXI.Loader.shared.resources["assets/spaceShip.png"].texture
-            );   
-        //spaceship position
-        spaceShip.position.set(20,100);
-        //velocity
-        spaceShip.vx =0;
-        spaceShip.vy =0;
-        //spaceship scale
-        spaceShip.width = 60;
-        spaceShip.height = 60;
-        
-
-        fire.width = 90;
-        fire.height = 90;
-        fire.position.set(-90,145)
+                spaceShip = new PIXI.Sprite(
+                    PIXI.Loader.shared.resources["assets/spaceShip.png"].texture
+                );   
+            //spaceship position
+            spaceShip.position.set(20,100);
+            //velocity
+            spaceShip.vx =0;
+            spaceShip.vy =0;
+            //spaceship scale
+            spaceShip.width = 60;
+            spaceShip.height = 60;
             
-        spaceShip.addChild(fire)
-        app.stage.addChild(background)
-        app.stage.addChild(spaceShip);
-            
-        state = play;
 
-        app.ticker.add((delta) => gameLoop(delta))
+            fire.width = 90;
+            fire.height = 90;
+            fire.position.set(-90,145)
+                
+            spaceShip.addChild(fire)
+            app.stage.addChild(background)
+            app.stage.addChild(spaceShip);
+                
+            state = play;
+
+            app.ticker.add((delta) => gameLoop(delta))
         }
 
         document.addEventListener('keydown', keyDownHandler);
         document.addEventListener('keyup', keyUpHandler);
 
-
         function keyDownHandler(event){
             switch(event.keyCode){
                 case 39:
                     spaceShip.vx =5;
+
                 break;
 
                 case 37:
@@ -83,6 +85,9 @@
                 break;
                 case 38:
                     spaceShip.vy = -5;
+                break;
+                case 32:
+                    shoot();
                 break;
             }
         }
@@ -105,16 +110,98 @@
 
         }
 
+        function contain(sprite, container) {
+
+            let collision = undefined;
+
+            //Left
+            if (sprite.x < container.x) {
+            sprite.x = container.x;
+            collision = "left";
+            }
+
+            //Top
+            if (sprite.y < container.y) {
+            sprite.y = container.y;
+            collision = "top";
+            }
+
+            //Right
+            if (sprite.x + sprite.width > container.width) {
+            sprite.x = container.width - sprite.width;
+            collision = "right";
+            }
+
+            //Bottom
+            if (sprite.y + sprite.height > container.height) {
+            sprite.y = container.height - sprite.height;
+            collision = "bottom";
+            }
+
+            //Return the `collision` value
+            return collision;
+        }
+
+
+        
+        let ammo = [];
+        
+        function shoot(e){
+        
+            let bullet = new PIXI.Sprite(
+                    PIXI.Loader.shared.resources["assets/bullet.png"].texture
+            );  
+            let startY = spaceShip.y + (spaceShip.height/4)
+            let startX = spaceShip.x +30;
+            bullet.position.set(startX, startY)
+            app.stage.addChild(bullet)
+
+            ammo.push(bullet)
+            
+        }
+
+        function randomInt(min,max){
+            return Math.floor(Math.random() * (max - min + 1) + min)
+        }
+
+        let enemies = []
+
+       function addEnemy(){     
+            console.log("call")       
+            let enemy = new PIXI.Sprite(
+                    PIXI.Loader.shared.resources["assets/enemy.png"].texture
+            );
+            enemy.width = 60
+            enemy.height = 60
+            enemy.position.set(randomInt(800,900)-enemy.width,randomInt(1,600)-enemy.height)
+            app.stage.addChild(enemy)
+            enemies.push(enemy)
+        }
+        
         function gameLoop(delta) {
             state(delta)
         }
 
+        setInterval(addEnemy,2000)
+        
+        
         function play(delta){
-            spaceShip.x  += spaceShip.vx;
-            spaceShip.y  += spaceShip.vy;
-    
-            background.tilePosition.x-=1;
+                contain(spaceShip, {x:0, y:0, width:800, height:600});
+                spaceShip.x  += spaceShip.vx;
+                spaceShip.y  += spaceShip.vy;
+
+                for(let i=0; i<ammo.length;i++){
+                    ammo[i].x +=5;
+                }
+                
+                for(let i=0; i<enemies.length;i++){
+                    enemies[i].x -=2;
+                }
+
+                background.tilePosition.x-=1;
         }
+
+    
         
 
       </script>
