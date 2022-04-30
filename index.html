@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="node_modules/pixi.js/dist/browser/pixi.min.js"></script>
+    <script src="node_modules/@pixi/sound/dist/pixi-sound.js"></script>
+</head>
+<body>
+    <script>
+       
+        let background,spaceShip, state;
+
+        let app = new PIXI.Application({ width: 800, height: 600 });
+        document.body.appendChild(app.view);
+        
+        PIXI.Loader.shared
+            .add("assets/spaceShip.png")
+            .add("assets/background.png")
+            .add("assets/fire.gif")
+            .load(setup);
+            
+        function setup() {
+            // engine sound
+            const sound = PIXI.sound.Sound.from({
+               url:"assets/music.mp3",
+              // autoPlay: true,
+               volume: 0.2,
+            })
+
+            //bg image
+        background = new PIXI.TilingSprite(
+            PIXI.Loader.shared.resources["assets/background.png"].texture, 800, 600,
+        );
+        let fire = new PIXI.Sprite(
+                PIXI.Loader.shared.resources["assets/fire.gif"].texture
+            );    
+
+            spaceShip = new PIXI.Sprite(
+                PIXI.Loader.shared.resources["assets/spaceShip.png"].texture
+            );   
+        //spaceship position
+        spaceShip.position.set(20,100);
+        //velocity
+        spaceShip.vx =0;
+        spaceShip.vy =0;
+        //spaceship scale
+        spaceShip.width = 60;
+        spaceShip.height = 60;
+        
+
+        fire.width = 90;
+        fire.height = 90;
+        fire.position.set(-90,145)
+            
+        spaceShip.addChild(fire)
+        app.stage.addChild(background)
+        app.stage.addChild(spaceShip);
+            
+        state = play;
+
+        app.ticker.add((delta) => gameLoop(delta))
+        }
+
+        document.addEventListener('keydown', keyDownHandler);
+        document.addEventListener('keyup', keyUpHandler);
+
+
+        function keyDownHandler(event){
+            switch(event.keyCode){
+                case 39:
+                    spaceShip.vx =5;
+                break;
+
+                case 37:
+                    spaceShip.vx =-5;
+                break;
+                case 40:
+                    spaceShip.vy = 5;
+                break;
+                case 38:
+                    spaceShip.vy = -5;
+                break;
+            }
+        }
+        function keyUpHandler(event){
+            switch(event.keyCode){
+                case 39:
+                    spaceShip.vx =0;
+                break;
+                case 37:
+                    spaceShip.vx =0;
+                break;
+                case 40:
+                    spaceShip.vy =0;
+                break;
+                case 38:
+                    spaceShip.vy =0;
+                break;
+            }
+
+
+        }
+
+        function gameLoop(delta) {
+            state(delta)
+        }
+
+        function play(delta){
+            spaceShip.x  += spaceShip.vx;
+            spaceShip.y  += spaceShip.vy;
+    
+            background.tilePosition.x-=1;
+        }
+        
+
+      </script>
+</body>
+</html>

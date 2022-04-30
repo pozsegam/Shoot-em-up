@@ -1,0 +1,7 @@
+{
+  "dependencies": {
+    "@pixi/display": "^6.3.0",
+    "@pixi/sound": "^4.2.0",
+    "pixi.js": "^6.3.0"
+  }
+}
