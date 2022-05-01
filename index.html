@@ -11,15 +11,15 @@
   </head>
   <body>
     <script>
-      let background, spaceShip, state;
+      let background, spaceShip, state, fire;
       //sounds
       let point = 0;
       let message;
       let music;
       let gameOverSound, gameOverText;
       let bulletSpound, crash, score;
-      let enemies = [];
-      let ammo = [];
+      let enemies;
+      let ammo;
 
       let app = new PIXI.Application({ width: 800, height: 600 });
       document.body.appendChild(app.view);
@@ -31,6 +31,7 @@
         .add("assets/bullet.png")
         .add("assets/enemy.png")
         .add("assets/menuAnimation.png")
+        .add("assets/logo.png")
         .load(setup);
 
       function setup() {
@@ -45,20 +46,29 @@
         //main Menu
         menu = new PIXI.Container();
         app.stage.addChild(menu);
-        let menuBackground = new PIXI.Sprite(
-          PIXI.Loader.shared.resources["assets/menuAnimation.png"].texture
-        );
-
+       
+        
         const menuStyle = new PIXI.TextStyle({
           fontFamily: "VT323",
           fontSize: 48,
           fill: "white",
           align: "center",
         });
+
+        let menuLogo = new PIXI.Sprite(
+          PIXI.Loader.shared.resources["assets/logo.png"].texture
+        );
+        menuLogo.anchor.set(0.5)
+        menuLogo.position.set(400, 120)
+        menuLogo.width = 160
+        menuLogo.height = 80
+        menu.addChild(menuLogo)
         createMenu(menu, "Game1", menuStyle, 0.5, 400, 200, true, true, start);
         createMenu(menu, "Game2", menuStyle, 0.5, 400, 250, true, true, start);
         createMenu(menu, "Game3", menuStyle, 0.5, 400, 300, true, true, start);
-        createMenu(menu, "Exit", menuStyle, 0.5, 400, 350, true, true, start);
+        createMenu(menu, "Exit", menuStyle, 0.5, 400, 350, true, true, () =>{
+            window.open("https://www.reddit.com/")
+        });
 
         menu.visible = true;
         gameScene.visible = false;
@@ -111,7 +121,7 @@
 
         music = PIXI.sound.Sound.from({
           url: "assets/music.mp3",
-          autoPlay: true,
+          //autoPlay: true,
           loop: true,
           volume: 0.2,
         });
@@ -137,7 +147,7 @@
           800,
           600
         );
-        let fire = new PIXI.Sprite(
+        fire = new PIXI.Sprite(
           PIXI.Loader.shared.resources["assets/fire.gif"].texture
         );
 
@@ -157,16 +167,21 @@
         fire.height = 90;
         fire.position.set(-90, 145);
 
-        spaceShip.addChild(fire);
-        gameScene.addChild(background);
-        gameScene.addChild(spaceShip);
-        gameScene.addChild(message);
-
         app.ticker.add((delta) => gameLoop(delta));
       }
 
       function start() {
         state = play;
+        enemies = []
+        ammo = []
+        point = 0
+        message.text = "SCORE:" + point
+        music.play()
+        spaceShip.addChild(fire);
+        gameScene.addChild(background);
+        gameScene.addChild(spaceShip);
+        gameScene.addChild(message);
+
         menu.visible = false;
         gameOverScene.visible = false;
         gameScene.visible = true;
@@ -281,6 +296,9 @@
         gameScene.visible = false;
         gameOverScene.visible = true;
         music.stop();
+        enemies = []
+        ammo = []
+        for (var i = gameScene.children.length - 1; i >= 0; i--) {	gameScene.removeChild(gameScene.children[i]);};
       }
 
       function shoot(e) {
