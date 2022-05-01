@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="style.css">
     <script src="node_modules/pixi.js/dist/browser/pixi.js"></script>
     <script src="node_modules/@pixi/sound/dist/pixi-sound.js"></script>
-
 </head>
 <body>
     <script>
@@ -31,9 +30,12 @@
             .add("assets/fire.gif")
             .add("assets/bullet.png")
             .add("assets/enemy.png")
+            .add("assets/menuAnimation.png")
             .load(setup);
             
         function setup() {
+
+            state = idle;
 
                 gameScene = new PIXI.Container();
                 app.stage.addChild(gameScene);
@@ -44,8 +46,26 @@
                 //main Menu
                 menu = new PIXI.Container();
                 app.stage.addChild(menu)
+                let menuBackground = new PIXI.Sprite(
+                    PIXI.Loader.shared.resources["assets/menuAnimation.png"].texture
+                );    
 
-                menu.visible = false;
+                const menuStyle = new PIXI.TextStyle({
+                    fontFamily: "VT323",
+                    fontSize: 48,
+                    fill:"white",
+                    align: "center",
+                    
+                });
+                createMenu(menu,"Game1",menuStyle,0.5,400,200,true,true,start);
+                createMenu(menu,"Game2",menuStyle,0.5,400,250,true,true,start);
+                createMenu(menu,"Game3",menuStyle,0.5,400,300,true,true,start);
+                createMenu(menu,"Exit",menuStyle,0.5,400,350,true,true,start);
+
+
+    
+                menu.visible = true;
+                gameScene.visible = false;
                 
 
                 gameOverSound = PIXI.sound.Sound.from({
@@ -57,15 +77,33 @@
                
                 const gameOverStyle = new PIXI.TextStyle({
                     fontFamily: "VT323",
-                    fontSize: 60,
-                    fill:"white"
+                    fontSize: 70,
+                    fill:"white",
+                    align: "center",
                 });
                 gameOverText = new PIXI.Text("GAME OVER!\nSCORE:",gameOverStyle );
                 gameOverText.anchor.set(0.5)
-                gameOverText.position.set(400,300)
+                gameOverText.position.set(400,280)
                 gameOverScene.addChild(gameOverText);
-            
 
+                const playAgainContainer = new PIXI.Container();
+                const rectangle = new PIXI.Graphics();
+
+
+                // TODO playagain container + click action
+                rectangle.beginFill(0xC0C0C0)
+                rectangle.drawRect(400,320,50,50)
+                playAgainContainer.addChild(rectangle)
+
+                playAgainText = new PIXI.Text("Play Again!",gameOverStyle);
+                playAgainText.anchor.set(0.5);
+                playAgainText.position.set(400,370);
+                gameOverScene.addChild(playAgainContainer)
+
+
+
+
+            
                 gameOverScene.visible = false;
 
                 const style = new PIXI.TextStyle({
@@ -130,15 +168,39 @@
             gameScene.addChild(background)
             gameScene.addChild(spaceShip);
             gameScene.addChild(message)
-            state = play;
             
-            setInterval(addEnemy,2000)
-
+            
+          
             app.ticker.add((delta) => gameLoop(delta))
         }
 
+        function start(){
+            state = play;
+            menu.visible = false;
+            gameScene.visible = true;
+            if(state == play){
+                setInterval(addEnemy,2000)
+            }
+        }
+
+        function createMenu(scene,title, style, anchorPoint, x,y, interactive, buttonMode, callback){
+            title = new PIXI.Text(title,style );
+            title.anchor.set(anchorPoint)
+            title.position.set(x,y)
+            scene.addChild(title)
+            title.interactive = interactive;
+            title.buttonMode = buttonMode
+            menu.addChild(title)
+            title.on('pointerdown',callback)
+        }
+
+
         document.addEventListener('keydown', keyDownHandler);
         document.addEventListener('keyup', keyUpHandler);
+
+        function idle(){
+           
+        }
 
         function keyDownHandler(event){
             switch(event.keyCode){
