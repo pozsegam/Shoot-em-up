@@ -13,8 +13,16 @@
 <body>
     <script>
         let background,spaceShip, state;
+        //sounds
+        let point = 0;
+        let  message;
+        let gameOverSound, gameOverText;
+        let bulletSpound, crash, score;
+        let enemies = []
+        let ammo = [];
 
-        let app = new PIXI.Application({ width: 800, height: 600 });
+ 
+         let app = new PIXI.Application({ width: 800, height: 600 });
         document.body.appendChild(app.view);
         
         PIXI.Loader.shared
@@ -26,12 +34,72 @@
             .load(setup);
             
         function setup() {
-                // engine sound
-                const sound = PIXI.sound.Sound.from({
-                url:"assets/music.mp3",
-                // autoPlay: true,
+
+                gameScene = new PIXI.Container();
+                app.stage.addChild(gameScene);
+
+                gameOverScene = new PIXI.Container();
+                app.stage.addChild(gameOverScene)
+                
+                //main Menu
+                menu = new PIXI.Container();
+                app.stage.addChild(menu)
+
+                menu.visible = false;
+                
+
+                gameOverSound = PIXI.sound.Sound.from({
+                url:"assets/gameover.wav",
+                autoPlay: false,
                 volume: 0.2,
                 })
+
+               
+                const gameOverStyle = new PIXI.TextStyle({
+                    fontFamily: "VT323",
+                    fontSize: 60,
+                    fill:"white"
+                });
+                gameOverText = new PIXI.Text("GAME OVER!\nSCORE:",gameOverStyle );
+                gameOverText.anchor.set(0.5)
+                gameOverText.position.set(400,300)
+                gameOverScene.addChild(gameOverText);
+            
+
+                gameOverScene.visible = false;
+
+                const style = new PIXI.TextStyle({
+                    fontFamily: "VT323",
+                    fontSize: 64,
+                    fill:"white"
+                });
+                message = new PIXI.Text("SCORE:" + point, style);
+                message.position.set(10,10)
+           
+    
+                // engine sound
+                const music = PIXI.sound.Sound.from({
+                url:"assets/music.mp3",
+                //autoPlay: true,
+                loop: true,
+                volume: 0.2,
+                })
+                bulletSpound = PIXI.sound.Sound.from({
+                url:"assets/laser.ogg",
+                //autoPlay: true,
+                volume: 0.2,
+                })     
+                crash = PIXI.sound.Sound.from({
+                url:"assets/crash.wav",
+                //autoPlay: true,
+                volume: 0.2,
+                })
+                score = PIXI.sound.Sound.from({
+                url:"assets/score.wav",
+                //autoPlay: true,
+                volume: 0.2,
+                })
+
 
                 //bg image
             background = new PIXI.TilingSprite(
@@ -59,13 +127,12 @@
             fire.position.set(-90,145)
                 
             spaceShip.addChild(fire)
-            app.stage.addChild(background)
-            app.stage.addChild(spaceShip);
-                
+            gameScene.addChild(background)
+            gameScene.addChild(spaceShip);
+            gameScene.addChild(message)
             state = play;
             
             setInterval(addEnemy,2000)
-            
 
             app.ticker.add((delta) => gameLoop(delta))
         }
@@ -145,9 +212,12 @@
             return collision;
         }
 
+        function end(){
+            gameScene.visible = false;
+            gameOverScene.visible = true;
+        }
 
     
-        let ammo = [];
         
         function shoot(e){
         
@@ -157,7 +227,8 @@
             let startY = spaceShip.y + (spaceShip.height/4)
             let startX = spaceShip.x +30;
             bullet.position.set(startX, startY)
-            app.stage.addChild(bullet)
+            gameScene.addChild(bullet)
+            bulletSpound.play()
 
             ammo.push(bullet)
             
@@ -167,49 +238,55 @@
             return Math.floor(Math.random() * (max - min + 1) + min)
         }
 
-        let enemies = []
+       
 
        function addEnemy(){     
-            console.log("call")       
             let enemy = new PIXI.Sprite(
                     PIXI.Loader.shared.resources["assets/enemy.png"].texture
             );
             enemy.width = 60
             enemy.height = 60
             enemy.position.set(randomInt(800,900)-enemy.width,randomInt(1,600)-enemy.height)
-            app.stage.addChild(enemy)
+            gameScene.addChild(enemy)
             enemies.push(enemy)
-            console.log(enemies)
         }
         
         function gameLoop(delta) {
             state(delta)
         }
 
+
         
+
         function play(delta){
                 contain(spaceShip, {x:0, y:0, width:800, height:600});
                 spaceShip.x  += spaceShip.vx;
                 spaceShip.y  += spaceShip.vy;   
 
-
                 for(let i=0; i<ammo.length;i++){
-                    if(hitTestRectangle(ammo[i],enemies)){
-                        console.log("pew")
-                    }
                     ammo[i].x +=5;
-                    
+                    for(let j = 0; j< enemies.length;j++){
+                        if(hitTestRectangle(ammo[i],enemies[j])){
+                            point+=10;
+                            message.text = "SCORE:" + point
+                            gameScene.removeChild(enemies[j])
+                            gameScene.removeChild(ammo[i])
+                            enemies.splice(j,1);
+                            ammo.splice(i,1);
+                            crash.play()
+                            score.play()
+                        }
+                    }
                 }
-
                 for(let i=0; i<enemies.length;i++){
                     if(hitTestRectangle(enemies[i],spaceShip)){
-                        console.log("pew")
-                   }
-                    enemies[i].x -=2;
-
+                        crash.play()
+                        gameOverSound.play()
+                        state = end
+                        gameOverText.text = "GAME OVER!\nSCORE:" + point;
+                    }
+                    enemies[i].x -= 5;
                 }
-    
-
                 background.tilePosition.x-=1;
         }
 
@@ -217,32 +294,33 @@
         
         function hitTestRectangle(r1, r2) {
 
-//Calculate `centerX` and `centerY` properties on the sprites
-r1.centerX = r1.x + r1.width / 2;
-r1.centerY = r1.y + r1.height / 2;
-r2.centerX = r2.x + r2.width / 2;
-r2.centerY = r2.y + r2.height / 2;
+            //Calculate `centerX` and `centerY` properties on the sprites
+            r1.centerX = r1.x + r1.width / 2;
+            r1.centerY = r1.y + r1.height / 2;
+            r2.centerX = r2.x + r2.width / 2;
+            r2.centerY = r2.y + r2.height / 2;
 
-//Calculate the `halfWidth` and `halfHeight` properties of the sprites
-r1.halfWidth = r1.width / 2;
-r1.halfHeight = r1.height / 2;
-r2.halfWidth = r2.width / 2;
-r2.halfHeight = r2.height / 2;
+            //Calculate the `halfWidth` and `halfHeight` properties of the sprites
+            r1.halfWidth = r1.width / 2;
+            r1.halfHeight = r1.height / 2;
+            r2.halfWidth = r2.width / 2;
+            r2.halfHeight = r2.height / 2;
 
-//Create a `collision` variable that will tell us
-//if a collision is occurring
-let collision = false;
+            //Create a `collision` variable that will tell us
+            //if a collision is occurring
+            let collision = false;
 
-//Check whether the shapes of the sprites are overlapping. If they
-//are, set `collision` to `true`
-if (Math.abs(r1.centerX - r2.centerX) < r1.halfWidth + r2.halfWidth
-&& Math.abs(r1.centerY - r2.centerY) < r1.halfHeight + r2.halfHeight) {
-  collision = true;
-}
+            //Check whether the shapes of the sprites are overlapping. If they
+            //are, set `collision` to `true`
+            if (Math.abs(r1.centerX - r2.centerX) < r1.halfWidth + r2.halfWidth
+            && Math.abs(r1.centerY - r2.centerY) < r1.halfHeight + r2.halfHeight) {
+            collision = true;
+            }
 
-//Return the value of `collision` back to the main program
-return collision;
+            //Return the value of `collision` back to the main program
+            return collision;
 }
       </script>
+    
 </body>
 </html>
