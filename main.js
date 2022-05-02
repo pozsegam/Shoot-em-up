@@ -22,7 +22,7 @@ PIXI.Loader.shared
   .add("assets/fire.gif")
   .add("assets/bullet.png")
   .add("assets/enemy.png")
-  .add("assets/menuAnimation.png")
+  .add("assets/explosion.json")
   .add("assets/logo.png")
   .load(setup);
 let gameScene;
@@ -31,6 +31,8 @@ export function setup() {
   state = idle;
   gameScene = new PIXI.Container();
 
+  let sheet = PIXI.Loader.shared.resources["assets/explosion.png"];
+  explosion = new PIXI.extras.AnimatedSprite(sheet.animations["explosion"]);
   menuLogo = new PIXI.Sprite(
     PIXI.Loader.shared.resources["assets/logo.png"].texture
   );
