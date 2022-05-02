@@ -8,395 +8,401 @@
     <link rel="stylesheet" href="style.css" />
     <script src="node_modules/pixi.js/dist/browser/pixi.js"></script>
     <script src="node_modules/@pixi/sound/dist/pixi-sound.js"></script>
+    <script type="module" src="main.js"></script>
   </head>
   <body>
     <script>
-      let background, spaceShip, state, fire;
-      //sounds
-      let point = 0;
-      let message;
-      let music;
-      let gameOverSound, gameOverText;
-      let bulletSpound, crash, score;
-      let enemies;
-      let ammo;
+      /*
+              let background, spaceShip, state, fire;
+              //sounds
+              let point = 0;
+              let message;
+              let music;
+              let gameOverSound, gameOverText;
+              let bulletSpound, crash, score;
+              let enemies;
+              let ammo;
 
-      let app = new PIXI.Application({ width: 800, height: 600 });
-      document.body.appendChild(app.view);
+              let app = new PIXI.Application({ width: 800, height: 600 });
+              document.body.appendChild(app.view);
 
-      PIXI.Loader.shared
-        .add("assets/spaceShip.png")
-        .add("assets/background.png")
-        .add("assets/fire.gif")
-        .add("assets/bullet.png")
-        .add("assets/enemy.png")
-        .add("assets/menuAnimation.png")
-        .add("assets/logo.png")
-        .load(setup);
+              PIXI.Loader.shared
+                .add("assets/spaceShip.png")
+                .add("assets/background.png")
+                .add("assets/fire.gif")
+                .add("assets/bullet.png")
+                .add("assets/enemy.png")
+                .add("assets/menuAnimation.png")
+                .add("assets/logo.png")
+                .load(setup);
+              let menu, gameScene, gameOverScene;
 
-      function setup() {
-        state = idle;
+              function setup() {
+                state = idle;
 
-        gameScene = new PIXI.Container();
-        app.stage.addChild(gameScene);
+                gameScene = new PIXI.Container();
+                app.stage.addChild(gameScene);
 
-        gameOverScene = new PIXI.Container();
-        app.stage.addChild(gameOverScene);
+                gameOverScene = new PIXI.Container();
+                app.stage.addChild(gameOverScene);
 
-        //main Menu
-        menu = new PIXI.Container();
-        app.stage.addChild(menu);
-       
-        
-        const menuStyle = new PIXI.TextStyle({
-          fontFamily: "VT323",
-          fontSize: 48,
-          fill: "white",
-          align: "center",
-        });
+                //main Menu
+                menu = new PIXI.Container();
+                app.stage.addChild(menu);
 
-        let menuLogo = new PIXI.Sprite(
-          PIXI.Loader.shared.resources["assets/logo.png"].texture
-        );
-        menuLogo.anchor.set(0.5)
-        menuLogo.position.set(400, 120)
-        menuLogo.width = 160
-        menuLogo.height = 80
-        menu.addChild(menuLogo)
-        createMenu(menu, "Game1", menuStyle, 0.5, 400, 200, true, true, start);
-        createMenu(menu, "Game2", menuStyle, 0.5, 400, 250, true, true, start);
-        createMenu(menu, "Game3", menuStyle, 0.5, 400, 300, true, true, start);
-        createMenu(menu, "Exit", menuStyle, 0.5, 400, 350, true, true, () =>{
-            window.open("https://www.reddit.com/")
-        });
+                const menuStyle = new PIXI.TextStyle({
+                  fontFamily: "VT323",
+                  fontSize: 48,
+                  fill: "white",
+                  align: "center",
+                });
 
-        menu.visible = true;
-        gameScene.visible = false;
+                let menuLogo = new PIXI.Sprite(
+                  PIXI.Loader.shared.resources["assets/logo.png"].texture
+                );
+                menuLogo.anchor.set(0.5);
+                menuLogo.position.set(400, 120);
+                menuLogo.width = 160;
+                menuLogo.height = 80;
+                menu.addChild(menuLogo);
+                createMenu(menu, "Game1", menuStyle, 0.5, 400, 200, true, true, start);
+                createMenu(menu, "Game2", menuStyle, 0.5, 400, 250, true, true, start);
+                createMenu(menu, "Game3", menuStyle, 0.5, 400, 300, true, true, start);
+                createMenu(menu, "Exit", menuStyle, 0.5, 400, 350, true, true, () => {
+                  window.open("https://www.reddit.com/");
+                });
 
-        gameOverSound = PIXI.sound.Sound.from({
-          url: "assets/gameover.wav",
-          autoPlay: false,
-          volume: 0.2,
-        });
+                menu.visible = true;
+                gameScene.visible = false;
 
-        const gameOverStyle = new PIXI.TextStyle({
-          fontFamily: "VT323",
-          fontSize: 70,
-          fill: "white",
-          align: "center",
-        });
-        gameOverText = new PIXI.Text("GAME OVER!\nSCORE:", gameOverStyle);
-        gameOverText.anchor.set(0.5);
-        gameOverText.position.set(400, 280);
-        gameOverScene.addChild(gameOverText);
+                gameOverSound = PIXI.sound.Sound.from({
+                  url: "assets/gameover.wav",
+                  autoPlay: false,
+                  volume: 0.2,
+                });
 
-        const playAgainContainer = new PIXI.Container();
-        const rectangle = new PIXI.Graphics();
+                const gameOverStyle = new PIXI.TextStyle({
+                  fontFamily: "VT323",
+                  fontSize: 70,
+                  fill: "white",
+                  align: "center",
+                });
+                gameOverText = new PIXI.Text("GAME OVER!\nSCORE:", gameOverStyle);
+                gameOverText.anchor.set(0.5);
+                gameOverText.position.set(400, 280);
+                gameOverScene.addChild(gameOverText);
 
-        // TODO playagain container + click action
-        rectangle.beginFill(0x353839);
-        rectangle.drawRoundedRect(220, 320, 350, 100);
-        playAgainContainer.addChild(rectangle);
-        playAgainContainer.position.set(0, 20);
-        playAgainContainer.interactive = true;
-        playAgainContainer.buttonMode = true;
-        playAgainContainer.on("pointerdown", toMenu);
+                const playAgainContainer = new PIXI.Container();
+                const rectangle = new PIXI.Graphics();
 
-        playAgainText = new PIXI.Text("Main Menu", gameOverStyle);
-        playAgainText.anchor.set(0.5);
-        playAgainText.position.set(400, 370);
+                // TODO playagain container + click action
+                rectangle.beginFill(0x353839);
+                rectangle.drawRoundedRect(220, 320, 350, 100);
+                playAgainContainer.addChild(rectangle);
+                playAgainContainer.position.set(0, 20);
+                playAgainContainer.interactive = true;
+                playAgainContainer.buttonMode = true;
+                playAgainContainer.on("pointerdown", toMenu);
 
-        playAgainContainer.addChild(playAgainText);
-        gameOverScene.addChild(playAgainContainer);
+                playAgainText = new PIXI.Text("Main Menu", gameOverStyle);
+                playAgainText.anchor.set(0.5);
+                playAgainText.position.set(400, 370);
 
-        gameOverScene.visible = false;
+                playAgainContainer.addChild(playAgainText);
+                gameOverScene.addChild(playAgainContainer);
 
-        const style = new PIXI.TextStyle({
-          fontFamily: "VT323",
-          fontSize: 64,
-          fill: "white",
-        });
-        message = new PIXI.Text("SCORE:" + point, style);
-        message.position.set(10, 10);
+                gameOverScene.visible = false;
 
-        music = PIXI.sound.Sound.from({
-          url: "assets/music.mp3",
-          //autoPlay: true,
-          loop: true,
-          volume: 0.2,
-        });
-        bulletSpound = PIXI.sound.Sound.from({
-          url: "assets/laser.ogg",
-          //autoPlay: true,
-          volume: 0.2,
-        });
-        crash = PIXI.sound.Sound.from({
-          url: "assets/crash.wav",
-          //autoPlay: true,
-          volume: 0.2,
-        });
-        score = PIXI.sound.Sound.from({
-          url: "assets/score.wav",
-          //autoPlay: true,
-          volume: 0.2,
-        });
+                const style = new PIXI.TextStyle({
+                  fontFamily: "VT323",
+                  fontSize: 64,
+                  fill: "white",
+                });
+                message = new PIXI.Text("SCORE:" + point, style);
+                message.position.set(10, 10);
 
-        //bg image
-        background = new PIXI.TilingSprite(
-          PIXI.Loader.shared.resources["assets/background.png"].texture,
-          800,
-          600
-        );
-        fire = new PIXI.Sprite(
-          PIXI.Loader.shared.resources["assets/fire.gif"].texture
-        );
+                music = PIXI.sound.Sound.from({
+                  url: "assets/music.mp3",
+                  //autoPlay: true,
+                  loop: true,
+                  volume: 0.2,
+                });
+                bulletSpound = PIXI.sound.Sound.from({
+                  url: "assets/laser.ogg",
+                  //autoPlay: true,
+                  volume: 0.2,
+                });
+                crash = PIXI.sound.Sound.from({
+                  url: "assets/crash.wav",
+                  //autoPlay: true,
+                  volume: 0.2,
+                });
+                score = PIXI.sound.Sound.from({
+                  url: "assets/score.wav",
+                  //autoPlay: true,
+                  volume: 0.2,
+                });
 
-        spaceShip = new PIXI.Sprite(
-          PIXI.Loader.shared.resources["assets/spaceShip.png"].texture
-        );
-        //spaceship position
-        spaceShip.position.set(20, 100);
-        //velocity
-        spaceShip.vx = 0;
-        spaceShip.vy = 0;
-        //spaceship scale
-        spaceShip.width = 60;
-        spaceShip.height = 60;
+                //bg image
+                background = new PIXI.TilingSprite(
+                  PIXI.Loader.shared.resources["assets/background.png"].texture,
+                  800,
+                  600
+                );
+                fire = new PIXI.Sprite(
+                  PIXI.Loader.shared.resources["assets/fire.gif"].texture
+                );
 
-        fire.width = 90;
-        fire.height = 90;
-        fire.position.set(-90, 145);
+                spaceShip = new PIXI.Sprite(
+                  PIXI.Loader.shared.resources["assets/spaceShip.png"].texture
+                );
+                //spaceship position
+                spaceShip.position.set(20, 100);
+                //velocity
+                spaceShip.vx = 0;
+                spaceShip.vy = 0;
+                //spaceship scale
+                spaceShip.width = 60;
+                spaceShip.height = 60;
 
-        app.ticker.add((delta) => gameLoop(delta));
-      }
+                fire.width = 90;
+                fire.height = 90;
+                fire.position.set(-90, 145);
 
-      function start() {
-        state = play;
-        enemies = []
-        ammo = []
-        point = 0
-        message.text = "SCORE:" + point
-        music.play()
-        spaceShip.addChild(fire);
-        gameScene.addChild(background);
-        gameScene.addChild(spaceShip);
-        gameScene.addChild(message);
+                app.ticker.add((delta) => gameLoop(delta));
+              }
 
-        menu.visible = false;
-        gameOverScene.visible = false;
-        gameScene.visible = true;
-        if (state == play) {
-          setInterval(addEnemy, 2000);
-        }
-      }
+              function start() {
+                state = play;
+                enemies = [];
+                ammo = [];
+                point = 0;
+                message.text = "SCORE:" + point;
+                music.play();
+                spaceShip.addChild(fire);
+                gameScene.addChild(background);
+                gameScene.addChild(spaceShip);
+                gameScene.addChild(message);
 
-      function createMenu(
-        scene,
-        title,
-        style,
-        anchorPoint,
-        x,
-        y,
-        interactive,
-        buttonMode,
-        callback
-      ) {
-        title = new PIXI.Text(title, style);
-        title.anchor.set(anchorPoint);
-        title.position.set(x, y);
-        scene.addChild(title);
-        title.interactive = interactive;
-        title.buttonMode = buttonMode;
-        menu.addChild(title);
-        title.on("pointerdown", callback);
-      }
+                menu.visible = false;
+                gameOverScene.visible = false;
+                gameScene.visible = true;
+                if (state == play) {
+                  setInterval(addEnemy, 2000);
+                }
+              }
 
-      document.addEventListener("keydown", keyDownHandler);
-      document.addEventListener("keyup", keyUpHandler);
+              function createMenu(
+                scene,
+                title,
+                style,
+                anchorPoint,
+                x,
+                y,
+                interactive,
+                buttonMode,
+                callback
+              ) {
+                title = new PIXI.Text(title, style);
+                title.anchor.set(anchorPoint);
+                title.position.set(x, y);
+                scene.addChild(title);
+                title.interactive = interactive;
+                title.buttonMode = buttonMode;
+                menu.addChild(title);
+                title.on("pointerdown", callback);
+              }
 
-      function idle() {}
+              document.addEventListener("keydown", keyDownHandler);
+              document.addEventListener("keyup", keyUpHandler);
 
-      function toMenu() {
-        state = idle;
-        gameScene.visible = false;
-        gameOverScene.visible = false;
-        menu.visible = true;
-      }
+              function idle() {}
 
-      function keyDownHandler(event) {
-        switch (event.keyCode) {
-          case 39:
-            spaceShip.vx = 5;
+              function toMenu() {
+                state = idle;
+                gameScene.visible = false;
+                gameOverScene.visible = false;
+                menu.visible = true;
+              }
 
-            break;
+              function keyDownHandler(event) {
+                switch (event.keyCode) {
+                  case 39:
+                    spaceShip.vx = 5;
 
-          case 37:
-            spaceShip.vx = -5;
-            break;
-          case 40:
-            spaceShip.vy = 5;
-            break;
-          case 38:
-            spaceShip.vy = -5;
-            break;
-          case 32:
-            shoot();
-            break;
-        }
-      }
-      function keyUpHandler(event) {
-        switch (event.keyCode) {
-          case 39:
-            spaceShip.vx = 0;
-            break;
-          case 37:
-            spaceShip.vx = 0;
-            break;
-          case 40:
-            spaceShip.vy = 0;
-            break;
-          case 38:
-            spaceShip.vy = 0;
-            break;
-        }
-      }
+                    break;
 
-      function contain(sprite, container) {
-        let collision = undefined;
+                  case 37:
+                    spaceShip.vx = -5;
+                    break;
+                  case 40:
+                    spaceShip.vy = 5;
+                    break;
+                  case 38:
+                    spaceShip.vy = -5;
+                    break;
+                  case 32:
+                    shoot();
+                    break;
+                }
+              }
+              function keyUpHandler(event) {
+                switch (event.keyCode) {
+                  case 39:
+                    spaceShip.vx = 0;
+                    break;
+                  case 37:
+                    spaceShip.vx = 0;
+                    break;
+                  case 40:
+                    spaceShip.vy = 0;
+                    break;
+                  case 38:
+                    spaceShip.vy = 0;
+                    break;
+                }
+              }
 
-        //Left
-        if (sprite.x < container.x) {
-          sprite.x = container.x;
-          collision = "left";
-        }
+              function contain(sprite, container) {
+                let collision = undefined;
 
-        //Top
-        if (sprite.y < container.y) {
-          sprite.y = container.y;
-          collision = "top";
-        }
+                //Left
+                if (sprite.x < container.x) {
+                  sprite.x = container.x;
+                  collision = "left";
+                }
 
-        //Right
-        if (sprite.x + sprite.width > container.width) {
-          sprite.x = container.width - sprite.width;
-          collision = "right";
-        }
+                //Top
+                if (sprite.y < container.y) {
+                  sprite.y = container.y;
+                  collision = "top";
+                }
 
-        //Bottom
-        if (sprite.y + sprite.height > container.height) {
-          sprite.y = container.height - sprite.height;
-          collision = "bottom";
-        }
+                //Right
+                if (sprite.x + sprite.width > container.width) {
+                  sprite.x = container.width - sprite.width;
+                  collision = "right";
+                }
 
-        //Return the `collision` value
-        return collision;
-      }
+                //Bottom
+                if (sprite.y + sprite.height > container.height) {
+                  sprite.y = container.height - sprite.height;
+                  collision = "bottom";
+                }
 
-      function end() {
-        gameScene.visible = false;
-        gameOverScene.visible = true;
-        music.stop();
-        enemies = []
-        ammo = []
-        for (var i = gameScene.children.length - 1; i >= 0; i--) {	gameScene.removeChild(gameScene.children[i]);};
-      }
+                //Return the `collision` value
+                return collision;
+              }
 
-      function shoot(e) {
-        let bullet = new PIXI.Sprite(
-          PIXI.Loader.shared.resources["assets/bullet.png"].texture
-        );
-        let startY = spaceShip.y + spaceShip.height / 4;
-        let startX = spaceShip.x + 30;
-        bullet.position.set(startX, startY);
-        gameScene.addChild(bullet);
-        bulletSpound.play();
+              function end() {
+                gameScene.visible = false;
+                gameOverScene.visible = true;
+                music.stop();
+                enemies = [];
+                ammo = [];
+                for (var i = gameScene.children.length - 1; i >= 0; i--) {
+                  gameScene.removeChild(gameScene.children[i]);
+                }
+              }
 
-        ammo.push(bullet);
-      }
+              function shoot(e) {
+                let bullet = new PIXI.Sprite(
+                  PIXI.Loader.shared.resources["assets/bullet.png"].texture
+                );
+                let startY = spaceShip.y + spaceShip.height / 4;
+                let startX = spaceShip.x + 30;
+                bullet.position.set(startX, startY);
+                gameScene.addChild(bullet);
+                bulletSpound.play();
 
-      function randomInt(min, max) {
-        return Math.floor(Math.random() * (max - min + 1) + min);
-      }
+                ammo.push(bullet);
+              }
 
-      function addEnemy() {
-        let enemy = new PIXI.Sprite(
-          PIXI.Loader.shared.resources["assets/enemy.png"].texture
-        );
-        enemy.width = 60;
-        enemy.height = 60;
-        enemy.position.set(
-          randomInt(800, 900) - enemy.width,
-          randomInt(1, 600) - enemy.height
-        );
-        gameScene.addChild(enemy);
-        enemies.push(enemy);
-      }
+              function randomInt(min, max) {
+                return Math.floor(Math.random() * (max - min + 1) + min);
+              }
 
-      function gameLoop(delta) {
-        state(delta);
-      }
+              function addEnemy() {
+                let enemy = new PIXI.Sprite(
+                  PIXI.Loader.shared.resources["assets/enemy.png"].texture
+                );
+                enemy.width = 60;
+                enemy.height = 60;
+                enemy.position.set(
+                  randomInt(800, 900) - enemy.width,
+                  randomInt(1, 600) - enemy.height
+                );
+                gameScene.addChild(enemy);
+                enemies.push(enemy);
+              }
 
-      function play(delta) {
-        contain(spaceShip, { x: 0, y: 0, width: 800, height: 600 });
-        spaceShip.x += spaceShip.vx;
-        spaceShip.y += spaceShip.vy;
+              function gameLoop(delta) {
+                state(delta);
+              }
 
-        for (let i = 0; i < ammo.length; i++) {
-          ammo[i].x += 5;
-          for (let j = 0; j < enemies.length; j++) {
-            if (hitTestRectangle(ammo[i], enemies[j])) {
-              point += 10;
-              message.text = "SCORE:" + point;
-              gameScene.removeChild(enemies[j]);
-              gameScene.removeChild(ammo[i]);
-              enemies.splice(j, 1);
-              ammo.splice(i, 1);
-              crash.play();
-              score.play();
-            }
-          }
-        }
-        for (let i = 0; i < enemies.length; i++) {
-          if (hitTestRectangle(enemies[i], spaceShip)) {
-            crash.play();
-            gameOverSound.play();
-            state = end;
-            gameOverText.text = "GAME OVER!\nSCORE:" + point;
-          }
-          enemies[i].x -= 5;
-        }
-        background.tilePosition.x -= 1;
-      }
+              function play(delta) {
+                contain(spaceShip, { x: 0, y: 0, width: 800, height: 600 });
+                spaceShip.x += spaceShip.vx;
+                spaceShip.y += spaceShip.vy;
 
-      function hitTestRectangle(r1, r2) {
-        //Calculate `centerX` and `centerY` properties on the sprites
-        r1.centerX = r1.x + r1.width / 2;
-        r1.centerY = r1.y + r1.height / 2;
-        r2.centerX = r2.x + r2.width / 2;
-        r2.centerY = r2.y + r2.height / 2;
+                for (let i = 0; i < ammo.length; i++) {
+                  ammo[i].x += 5;
+                  for (let j = 0; j < enemies.length; j++) {
+                    if (hitTestRectangle(ammo[i], enemies[j])) {
+                      point += 10;
+                      message.text = "SCORE:" + point;
+                      gameScene.removeChild(enemies[j]);
+                      gameScene.removeChild(ammo[i]);
+                      enemies.splice(j, 1);
+                      ammo.splice(i, 1);
+                      crash.play();
+                      score.play();
+                    }
+                  }
+                }
+                for (let i = 0; i < enemies.length; i++) {
+                  if (hitTestRectangle(enemies[i], spaceShip)) {
+                    crash.play();
+                    gameOverSound.play();
+                    state = end;
+                    gameOverText.text = "GAME OVER!\nSCORE:" + point;
+                  }
+                  enemies[i].x -= 5;
+                }
+                background.tilePosition.x -= 1;
+              }
 
-        //Calculate the `halfWidth` and `halfHeight` properties of the sprites
-        r1.halfWidth = r1.width / 2;
-        r1.halfHeight = r1.height / 2;
-        r2.halfWidth = r2.width / 2;
-        r2.halfHeight = r2.height / 2;
+              function hitTestRectangle(r1, r2) {
+                //Calculate `centerX` and `centerY` properties on the sprites
+                r1.centerX = r1.x + r1.width / 2;
+                r1.centerY = r1.y + r1.height / 2;
+                r2.centerX = r2.x + r2.width / 2;
+                r2.centerY = r2.y + r2.height / 2;
 
-        //Create a `collision` variable that will tell us
-        //if a collision is occurring
-        let collision = false;
+                //Calculate the `halfWidth` and `halfHeight` properties of the sprites
+                r1.halfWidth = r1.width / 2;
+                r1.halfHeight = r1.height / 2;
+                r2.halfWidth = r2.width / 2;
+                r2.halfHeight = r2.height / 2;
 
-        //Check whether the shapes of the sprites are overlapping. If they
-        //are, set `collision` to `true`
-        if (
-          Math.abs(r1.centerX - r2.centerX) < r1.halfWidth + r2.halfWidth &&
-          Math.abs(r1.centerY - r2.centerY) < r1.halfHeight + r2.halfHeight
-        ) {
-          collision = true;
-        }
+                //Create a `collision` variable that will tell us
+                //if a collision is occurring
+                let collision = false;
 
-        //Return the value of `collision` back to the main program
-        return collision;
-      }
+                //Check whether the shapes of the sprites are overlapping. If they
+                //are, set `collision` to `true`
+                if (
+                  Math.abs(r1.centerX - r2.centerX) < r1.halfWidth + r2.halfWidth &&
+                  Math.abs(r1.centerY - r2.centerY) < r1.halfHeight + r2.halfHeight
+                ) {
+                  collision = true;
+                }
+
+                //Return the value of `collision` back to the main program
+                return collision;
+
+              }
+      */
     </script>
   </body>
 </html>
