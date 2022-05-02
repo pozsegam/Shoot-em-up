@@ -31,8 +31,17 @@ export function setup() {
   state = idle;
   gameScene = new PIXI.Container();
 
-  let sheet = PIXI.Loader.shared.resources["assets/explosion.png"];
-  explosion = new PIXI.extras.AnimatedSprite(sheet.animations["explosion"]);
+  let explosionTextures = [];
+  let i;
+  for (i = 1; i < 40; i++) {
+    const texture = PIXI.Texture.from(`explosion_${i}.png`);
+    explosionTextures.push(texture);
+  }
+
+  const explosion = new PIXI.AnimatedSprite(explosionTextures);
+  explosion.play();
+  menu.addChild(explosion);
+
   menuLogo = new PIXI.Sprite(
     PIXI.Loader.shared.resources["assets/logo.png"].texture
   );
