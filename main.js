@@ -39,8 +39,23 @@ export function setup() {
   }
 
   const explosion = new PIXI.AnimatedSprite(explosionTextures);
+  const explosion2 = new PIXI.AnimatedSprite(explosionTextures);
+
+  explosion.height = 500;
+  explosion.width = 500;
   explosion.play();
+  explosion.position.set(100, 300);
+  explosion.animationSpeed = 0.5;
+  explosion.anchor.set(0.5);
   menu.addChild(explosion);
+
+  explosion2.height = 500;
+  explosion2.width = 500;
+  explosion2.play();
+  explosion2.position.set(700, 300);
+  explosion2.animationSpeed = 0.5;
+  explosion2.anchor.set(0.5);
+  menu.addChild(explosion2);
 
   menuLogo = new PIXI.Sprite(
     PIXI.Loader.shared.resources["assets/logo.png"].texture
