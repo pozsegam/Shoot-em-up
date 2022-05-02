@@ -11,6 +11,7 @@ let point = 0;
 let message;
 export let menuLogo;
 let enemies;
+let loading;
 
 let app = new PIXI.Application({ width: 800, height: 600 });
 document.body.appendChild(app.view);
@@ -23,6 +24,7 @@ PIXI.Loader.shared
   .add("assets/bullet.png")
   .add("assets/enemy.png")
   .add("assets/explosion.json")
+  .add("assets/loading.json")
   .add("assets/logo.png")
   .load(setup);
 let gameScene;
@@ -30,13 +32,30 @@ let gameScene;
 export function setup() {
   state = idle;
   gameScene = new PIXI.Container();
-
+  let loadingScene = new PIXI.Container();
   let explosionTextures = [];
   let i;
   for (i = 1; i < 40; i++) {
     const texture = PIXI.Texture.from(`explosion_${i}.png`);
     explosionTextures.push(texture);
   }
+
+  let loadingTextures = [];
+  let j;
+  for (j = 1; j < 9; j++) {
+    const texture = PIXI.Texture.from(`loading_${j}.png`);
+    loadingTextures.push(texture);
+  }
+
+  loading = new PIXI.AnimatedSprite(loadingTextures);
+  loading.loop = true;
+  loading.height = 200;
+  loading.width = 200;
+  loading.anchor.set(0.5);
+  loading.position.set(400, 300);
+  loading.animationSpeed = 0.1;
+  loading.play();
+  loadingScene.addChild(loading);
 
   const explosion = new PIXI.AnimatedSprite(explosionTextures);
   const explosion2 = new PIXI.AnimatedSprite(explosionTextures);
@@ -66,12 +85,18 @@ export function setup() {
   menuLogo.height = 80;
 
   //ADDING SCENES TO STAGE
+
   app.stage.addChild(gameScene);
   app.stage.addChild(gameOverScene);
-  app.stage.addChild(menu);
+  app.stage.addChild(loadingScene);
+  setTimeout(() => {
+    app.stage.addChild(menu);
+    loadingScene.visible = false;
+  }, 2000);
   menu.addChild(menuLogo);
 
   //SCENES VISIBILIY
+
   menu.visible = true;
   gameScene.visible = false;
   gameOverScene.visible = false;
