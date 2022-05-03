@@ -5,13 +5,16 @@ import { menu, gameOverScene, gameOverText, gameOverStyle } from "./scenes.js";
 
 let ammo = [];
 let background;
-let spaceShip;
-let state, fire;
-let point = 0;
-let message;
+let spaceShip, fire;
+let state;
+let message,
+  point = 0;
 export let menuLogo;
 let enemies;
 let loading;
+let gameScene, loadingScene;
+let explosionTextures = [];
+let loadingTextures = [];
 
 let app = new PIXI.Application({ width: 800, height: 600 });
 document.body.appendChild(app.view);
@@ -27,35 +30,14 @@ PIXI.Loader.shared
   .add("assets/loading.json")
   .add("assets/logo.png")
   .load(setup);
-let gameScene;
 
 export function setup() {
   state = idle;
   gameScene = new PIXI.Container();
-  let loadingScene = new PIXI.Container();
-  let explosionTextures = [];
-  let i;
-  for (i = 1; i < 40; i++) {
-    const texture = PIXI.Texture.from(`explosion_${i}.png`);
-    explosionTextures.push(texture);
-  }
-
-  let loadingTextures = [];
-  let j;
-  for (j = 1; j < 9; j++) {
-    const texture = PIXI.Texture.from(`loading_${j}.png`);
-    loadingTextures.push(texture);
-  }
-
-  loading = new PIXI.AnimatedSprite(loadingTextures);
-  loading.loop = true;
-  loading.height = 200;
-  loading.width = 200;
-  loading.anchor.set(0.5);
-  loading.position.set(400, 300);
-  loading.animationSpeed = 0.1;
-  loading.play();
-  loadingScene.addChild(loading);
+  loadingScene = new PIXI.Container();
+  loadExplosionTextures();
+  loadLoadingScreenTextures();
+  animateLoadingScreen();
 
   const explosion = new PIXI.AnimatedSprite(explosionTextures);
   const explosion2 = new PIXI.AnimatedSprite(explosionTextures);
@@ -140,8 +122,36 @@ export function setup() {
   app.ticker.add((delta) => gameLoop(delta));
 }
 
+function animateLoadingScreen() {
+  loading = new PIXI.AnimatedSprite(loadingTextures);
+  loading.loop = true;
+  loading.height = 200;
+  loading.width = 200;
+  loading.anchor.set(0.5);
+  loading.position.set(400, 300);
+  loading.animationSpeed = 0.1;
+  loading.play();
+  loadingScene.addChild(loading);
+}
+
+function loadLoadingScreenTextures() {
+  let j;
+  for (j = 1; j < 9; j++) {
+    const texture = PIXI.Texture.from(`loading_${j}.png`);
+    loadingTextures.push(texture);
+  }
+}
+function loadExplosionTextures() {
+  let i;
+  for (i = 1; i < 40; i++) {
+    const texture = PIXI.Texture.from(`explosion_${i}.png`);
+    explosionTextures.push(texture);
+  }
+}
+
 export function start() {
   state = play;
+  shoot();
   enemies = [];
   ammo = [];
   point = 0;
@@ -181,26 +191,29 @@ function end() {
 }
 
 //SHOOTING MECHANISM
-window.addEventListener("keydown", (e) => {
-  if (e.keyCode === 32) {
-    let bullet = new PIXI.Sprite(
-      PIXI.Loader.shared.resources["assets/bullet.png"].texture
-    );
-    let startY = spaceShip.y + spaceShip.height / 4;
-    let startX = spaceShip.x + 30;
-    bullet.position.set(startX, startY);
-    gameScene.addChild(bullet);
-    bulletSpound.play();
+function shoot() {
+  window.addEventListener("keydown", (e) => {
+    if (e.keyCode === 32) {
+      let bullet = new PIXI.Sprite(
+        PIXI.Loader.shared.resources["assets/bullet.png"].texture
+      );
+      let startY = spaceShip.y + spaceShip.height / 4;
+      let startX = spaceShip.x + 30;
+      bullet.position.set(startX, startY);
+      gameScene.addChild(bullet);
+      bulletSpound.play();
 
-    ammo.push(bullet);
-  }
-});
+      ammo.push(bullet);
+    }
+  });
+}
 
 //RANDOM NUM FOR RANDOM MOVEMENT
 //TODO
 function randomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1) + min);
 }
+
 //CREATE ENEMY
 function addEnemy() {
   let enemy = new PIXI.Sprite(
