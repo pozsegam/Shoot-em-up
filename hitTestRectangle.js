@@ -1,3 +1,6 @@
+import * as PIXI from "./node_modules/pixi.js";
+import * as PIXI from "./node_modules/pixi-sound";
+
 export function hitTestRectangle(r1, r2) {
   //Calculate `centerX` and `centerY` properties on the sprites
   r1.centerX = r1.x + r1.width / 2;

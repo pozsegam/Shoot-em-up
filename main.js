@@ -2,7 +2,8 @@ import { gameOverSound, music, score, bulletSpound, crash } from "./sound.js";
 import { hitTestRectangle, contain } from "./hitTestRectangle.js";
 import { inputDirection } from "./movement.js";
 import { menu, gameOverScene, gameOverText, gameOverStyle } from "./scenes.js";
-
+import * as PIXI from "./node_modules/pixi.js";
+import * as PIXI from "./node_modules/pixi-sound";
 let ammo = [];
 let background;
 let spaceShip, fire;

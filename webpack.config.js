@@ -2,20 +2,24 @@ const path = require("path");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
-
 module.exports = {
-  entry: "./main.js",
+  module: {
+    rules: [{ test: /\.css$/, use: "css-loader" }],
+    rules: [{ test: /\.(jpg|png|gif|mp3)$/, use: "file-loader" }],
+  },
   plugins: [
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
-      title: "Space Invaders",
+      title: "SpaceInvaders",
     }),
     new CopyPlugin({
-      patterns: [{ from: "./assets", to: "assets" }],
+      patterns: [{ from: "assets", to: "assets" }],
     }),
   ],
+  mode: "development",
+  entry: "./main.js",
   output: {
-    filename: "main.js",
+    filename: "bundle.js",
     path: path.resolve(__dirname, "dist"),
   },
 };

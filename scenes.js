@@ -1,3 +1,6 @@
+import * as PIXI from "./node_modules/pixi.js";
+import * as PIXI from "./node_modules/pixi-sound";
+
 import { toMenu, start, setup, menuLogo } from "./main.js";
 
 export const gameOverScene = new PIXI.Container();
