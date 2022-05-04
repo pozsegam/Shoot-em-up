@@ -21,6 +21,7 @@
     "webpack-cli": "^4.9.2"
   },
   "dependencies": {
+    "@pixi/sound": "^4.2.0",
     "pixi-sound": "^3.0.5",
     "pixi.js": "^6.3.1",
     "webpack-dev-server": "^4.8.1"

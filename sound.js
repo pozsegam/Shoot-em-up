@@ -1,27 +1,9 @@
-export const gameOverSound = PIXI.sound.Sound.from({
-  url: "assets/gameover.wav",
-  autoPlay: false,
-  volume: 0.2,
-});
+import { sound } from "@pixi/sound";
+import * as PIXI from "pixi.js";
 
-export const music = PIXI.sound.Sound.from({
-  url: "assets/music.mp3",
-  //autoPlay: true,
-  loop: true,
-  volume: 0.2,
-});
-export const bulletSpound = PIXI.sound.Sound.from({
-  url: "assets/laser.ogg",
-  //autoPlay: true,
-  volume: 0.2,
-});
-export const crash = PIXI.sound.Sound.from({
-  url: "assets/crash.wav",
-  //autoPlay: true,
-  volume: 0.2,
-});
-export const score = PIXI.sound.Sound.from({
-  url: "assets/score.wav",
-  //autoPlay: true,
-  volume: 0.2,
-});
+export const gameOverSound = sound.add("gameOverSound", "assets/gameover.wav");
+
+export const music = sound.add("music", "assets/music.mp3");
+export const bulletSpound = sound.add("laser", "assets/laser.ogg");
+export const crash = sound.add("crash", "assets/crash.wav");
+export const score = sound.add("score", "assets/score.wav");

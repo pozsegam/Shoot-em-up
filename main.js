@@ -2,7 +2,8 @@ import { gameOverSound, music, score, bulletSpound, crash } from "./sound.js";
 import { hitTestRectangle, contain } from "./hitTestRectangle.js";
 import { inputDirection } from "./movement.js";
 import { menu, gameOverScene, gameOverText, gameOverStyle } from "./scenes.js";
-
+import { sound } from "@pixi/sound";
+import * as PIXI from "pixi.js";
 let ammo = [];
 let background;
 let spaceShip, fire;
@@ -42,16 +43,16 @@ export function setup() {
   const explosion = new PIXI.AnimatedSprite(explosionTextures);
   const explosion2 = new PIXI.AnimatedSprite(explosionTextures);
 
-  explosion.height = 500;
-  explosion.width = 500;
+  explosion.height = 300;
+  explosion.width = 300;
   explosion.play();
   explosion.position.set(100, 300);
   explosion.animationSpeed = 0.5;
   explosion.anchor.set(0.5);
   menu.addChild(explosion);
 
-  explosion2.height = 500;
-  explosion2.width = 500;
+  explosion2.height = 300;
+  explosion2.width = 300;
   explosion2.play();
   explosion2.position.set(700, 300);
   explosion2.animationSpeed = 0.5;
@@ -257,7 +258,7 @@ function play(delta) {
   for (let i = 0; i < enemies.length; i++) {
     if (hitTestRectangle(enemies[i], spaceShip)) {
       crash.play();
-      gameOverSound.play();
+      sound.play();
       state = end;
       gameOverText.text = "GAME OVER!\nSCORE:" + point;
     }
