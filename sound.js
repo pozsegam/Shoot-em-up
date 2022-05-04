@@ -1,6 +1,3 @@
-import * as PIXI from "./node_modules/pixi.js";
-import * as PIXI from "./node_modules/pixi-sound";
-
 export const gameOverSound = PIXI.sound.Sound.from({
   url: "assets/gameover.wav",
   autoPlay: false,
