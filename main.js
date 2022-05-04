@@ -183,7 +183,7 @@ export function toMenu() {
 function end() {
   gameScene.visible = false;
   gameOverScene.visible = true;
-  music.stop();
+
   enemies = [];
   ammo = [];
   for (var i = gameScene.children.length - 1; i >= 0; i--) {
@@ -258,7 +258,7 @@ function play(delta) {
   for (let i = 0; i < enemies.length; i++) {
     if (hitTestRectangle(enemies[i], spaceShip)) {
       crash.play();
-      sound.play();
+      gameOverSound.play();
       state = end;
       gameOverText.text = "GAME OVER!\nSCORE:" + point;
     }
