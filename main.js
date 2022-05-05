@@ -3,6 +3,7 @@ import { hitTestRectangle, contain } from "./hitTestRectangle.js";
 import { inputDirection } from "./movement.js";
 import { menu, gameOverScene, gameOverText, gameOverStyle } from "./scenes.js";
 import { sound } from "@pixi/sound";
+//import "./style.css"
 import * as PIXI from "pixi.js";
 let ammo = [];
 let background;
@@ -32,6 +33,7 @@ PIXI.Loader.shared
   .add("assets/logo.png")
   .load(setup);
 
+
 export function setup() {
   state = idle;
   gameScene = new PIXI.Container();
@@ -39,6 +41,7 @@ export function setup() {
   loadExplosionTextures();
   loadLoadingScreenTextures();
   animateLoadingScreen();
+
 
   const explosion = new PIXI.AnimatedSprite(explosionTextures);
   const explosion2 = new PIXI.AnimatedSprite(explosionTextures);
@@ -228,6 +231,7 @@ function addEnemy() {
   );
   gameScene.addChild(enemy);
   enemies.push(enemy);
+  console.log("added")
 }
 
 function gameLoop(delta) {
