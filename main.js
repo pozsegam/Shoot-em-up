@@ -3,8 +3,9 @@ import { hitTestRectangle, contain } from "./hitTestRectangle.js";
 import { inputDirection } from "./movement.js";
 import { menu, gameOverScene, gameOverText, gameOverStyle } from "./scenes.js";
 import { sound } from "@pixi/sound";
-//import "./style.css"
+import "./style.css"
 import * as PIXI from "pixi.js";
+
 let ammo = [];
 let background;
 let spaceShip, fire;

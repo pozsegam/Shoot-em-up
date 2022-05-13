@@ -4,8 +4,14 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 module.exports = {
   module: {
-    rules: [{ test: /\.css$/, use: ["css-loader", "style-loader"] }],
-    rules: [{ test: /\.(jpg|png|gif|mp3)$/, use: "file-loader" }],
+    rules: [
+      { 
+        test: /\.css$/, use: [ "style-loader","css-loader"] 
+      },
+      { 
+        test: /\.(jpg|png|gif|mp3)$/, use: "file-loader" 
+      }
+    ]
   },
   plugins: [
     new CleanWebpackPlugin(),
