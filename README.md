@@ -1,5 +1,5 @@
 # Shoot-em-up
 
-I still cant figure out how to build css file
+Space Invaders like shooter game made with Pixi JS.
 
 # Live: https://pozsegam.github.io/Shoot-em-up/

@@ -17,7 +17,6 @@ gameOverScene.addChild(gameOverText);
 const playAgainContainer = new PIXI.Container();
 const rectangle = new PIXI.Graphics();
 
-// TODO playagain container + click action
 rectangle.beginFill(0x353839);
 rectangle.drawRoundedRect(220, 320, 350, 100);
 playAgainContainer.addChild(rectangle);
